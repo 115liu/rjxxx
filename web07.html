@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>轮播图</title>
+</head>
+<link rel="stylesheet" type="text/css" href="style.css"/>
+<body>
+	<div class = "top" id="top">
+		<div id="laba"><img src="images/a15.png"></div>
+		<div id="dd">
+	<span id = "text">[温馨提示]最近有不少不法分子在网上骗人，请大家注意!!!</span>
+	</div>
+	</div>
+	<div class="box" id="box">
+		<div class="Kuang" id="Kuang">
+			<div class="Tu"><img src="images/b5.png"></div>
+			<div class="Tu"><img src="images/b1.png"></div>
+			<div class="Tu"><img src="images/b2.png"></div>
+			<div class="Tu"><img src="images/b3.png"></div>
+			<div class="Tu"><img src="images/b4.png"></div>
+			<div class="Tu"><img src="images/b5.png"></div>
+			<div class="Tu"><img src="images/b1.png"></div>
+		</div>
+		<span id="left" style=""><</span>
+		<span id="right" style="">></span>
+		<ul class="nav" id="nav">
+			<li class="active">1</li>
+			<li>2</li>
+			<li>3</li>
+			<li>4</li>
+			<li>5</li>
+		</ul>
+	</div>
+	<script>
+		var box = document.getElementById('box');
+		var oNavlist = document.getElementById('nav').children;
+		var Kuang = document.getElementById('Kuang');
+		var left = document.getElementById('left');
+		var right = document.getElementById('right');
+		var index = 1;
+		var timer;
+		var isMoving = false;
+		var laba = document.getElementById("laba");
+		var dd = document.getElementById("dd");
+		var text = document.getElementById("text");
+		//文字轮播
+		window.onload = function(){
+			var timer = setInterval(function(){
+				var now = parseInt(getStyle(text,'right'));
+				var ff = 1;
+				console.log(now);
+				if(now == 870){
+					text.style.right = -370+"px";
+					now = -370;
+				}else{
+					text.style.right = now + 1 +"px";
+				}
+				ff = ff+100;
+			},15);
+		}
+		//轮播下一张的函数
+		function next(){
+			if(!isMoving){
+				isMoving = true;
+				index++;
+				navchange();
+				animate(Kuang,{left:-1200*index},function(){
+						if(index>5){
+							Kuang.style.left = "-1200px";
+							index = 1;
+						}
+						isMoving = false;
+					});	
+				}			
+		}
+		function prev(){
+			if(isMoving){
+				return;
+			}
+			isMoving = true;
+				index--;
+				navchange();
+				animate(Kuang,{left:-1200*index},function(){
+					if(index===0){
+						Kuang.style.left = "-6000px";
+						index = 5;
+					}
+					isMoving = false;
+				});			
+		}
+		var timer = setInterval(next,2000);
+		//鼠标划入清定时器
+		box.onmouseover = function(){
+			animate(left,{opacity:50})
+			animate(right,{opacity:50})
+			clearInterval(timer)
+		}
+		//鼠标划出开定时器
+		box.onmouseout = function(){
+			animate(left, {opacity:0})
+			animate(right,{opacity:0})
+			timer = setInterval(next,2000);
+		}
+		right.onclick = next;
+		left.onclick = prev;
+		//小按钮点击
+		for(var i =0;i<oNavlist.length;i++){
+			oNavlist[i].index = i;
+			oNavlist[i].onclick = function(){
+				index = this.index+1;
+				navchange();
+				animate(Kuang,{left:-1200*index});
+			}
+		}
+		//小按钮背景色切换
+		function navchange(){
+			for(var i = 0;i<oNavlist.length;i++){
+				oNavlist[i].className = '';
+			}
+			if(index>5){
+				oNavlist[0].className = 'active';
+			}else if(index===0){
+				oNavlist[4].className = 'active';
+			}else{
+				oNavlist[index-1].className = 'active';
+			}
+			
+		}
+		//获取元素属性
+		function getStyle(obj,style) {  
+			if(obj.currentStyle) 
+			{  
+			    return obj.currentStyle[style];  
+			} 
+			else 
+			{  
+			    return getComputedStyle(obj)[style];  
+			}  
+		}
+		//封装函数
+		function animate(obj,json,callback){
+			clearInterval(obj.timer);
+			obj.timer = setInterval(function(){
+			var isStop = true;
+			var now = 0;
+			for(var attr in json){
+				if(attr == 'opacity'){
+					now = parseInt((getStyle(obj,attr ))*100);
+				}else{
+					now = parseInt(getStyle(obj,attr ));
+				}
+				var speed = (json[attr] - now)/10;
+				speed = speed>0?Math.ceil(speed):Math.floor(speed);
+				//console.log(now);
+				var current = now + speed;
+				if(attr == 'opacity'){
+					obj.style.opacity = current/100;
+				}else{
+					obj.style[attr] = current + "px";
+				}
+				 if(json[attr] !== current){
+				 	isStop = false;
+				 	}
+				}
+				if(isStop){
+					clearInterval(obj.timer);
+					callback&&callback();
+				}
+
+			}, 30)
+	}
+	</script>
+</body>
+</html>
